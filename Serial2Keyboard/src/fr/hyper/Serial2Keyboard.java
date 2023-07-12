@@ -82,7 +82,16 @@ public class Serial2Keyboard {
 		return shouldClose;
 	}
 
+	private long releases[KeyEvent.VK_UNDEFINED] = {0};
+
 	public void update() {
+		long currentTime = System.currentTimeMillis();
+		for(int i = 0; i < KeyEvent.VK_UNDEFINED; i++) {
+			if (releases[i] > 0 && releases[i] < currentTime) {
+				releases[i] = 0;
+				robot.keyRelease(i);
+			}
+		}
 		try {
 			if (!started) {
 				if (port != null) port.closePort();
@@ -120,7 +129,7 @@ public class Serial2Keyboard {
 					if (keycode == KeyEvent.VK_UNDEFINED) continue;
 
 					robot.keyPress(keycode);
-					robot.keyRelease(keycode);
+					releases[i] = currentTime + 50; // 50 ms should be holding for long enough right?
 				}
 				if (loggingOption.isSelected() && log != null) logging.setText(log.toString());
 			} else 
