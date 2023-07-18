@@ -82,11 +82,16 @@ public class Serial2Keyboard {
 		return shouldClose;
 	}
 
-	private long releases[KeyEvent.VK_UNDEFINED] = {0};
+	private long[] releases = new long[KeyEvent.VK_NUMPAD0];
+
+	{
+		for(int i = 0; i < releases.length; i++)
+			releases[i] = 0;
+	}
 
 	public void update() {
 		long currentTime = System.currentTimeMillis();
-		for(int i = 0; i < KeyEvent.VK_UNDEFINED; i++) {
+		for(int i = 0; i < KeyEvent.VK_NUMPAD0; i++) {
 			if (releases[i] > 0 && releases[i] < currentTime) {
 				releases[i] = 0;
 				robot.keyRelease(i);
@@ -126,10 +131,10 @@ public class Serial2Keyboard {
 					}
 
 					int keycode = KeyEvent.getExtendedKeyCodeForChar(c);
-					if (keycode == KeyEvent.VK_UNDEFINED) continue;
+					if (keycode >= KeyEvent.VK_NUMPAD0 || keycode == KeyEvent.VK_UNDEFINED) continue;
 
 					robot.keyPress(keycode);
-					releases[i] = currentTime + 50; // 50 ms should be holding for long enough right?
+					releases[keycode] = currentTime + 50; // 50 ms should be holding for long enough right?
 				}
 				if (loggingOption.isSelected() && log != null) logging.setText(log.toString());
 			} else 
